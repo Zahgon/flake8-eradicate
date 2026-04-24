@@ -13,14 +13,23 @@ from typing import (
     Type,
 )
 
-from eradicate import Eradicator
-from flake8.options.manager import OptionManager
+try:
+    from eradicate import Eradicator
+except ImportError:
+    Eradicator = None  # type: ignore
+try:
+    from flake8.options.manager import OptionManager
+except ImportError:
+    OptionManager = None  # type: ignore
 
 #: This is a name that we use to install this library:
 pkg_name = 'flake8-eradicate'
 
 #: We store the version number inside the `pyproject.toml`:
-pkg_version = importlib_metadata.version(pkg_name)
+try:
+    pkg_version = importlib_metadata.version(pkg_name)
+except Exception:
+    pkg_version = '0.0.0'
 
 
 class Checker(object):
@@ -80,51 +89,16 @@ class Checker(object):
             parser: ``flake8`` option parser instance.
 
         """
-        parser.add_option(
-            '--eradicate-aggressive',
-            default=False,
-            help=(
-                'Enables aggressive mode for eradicate; '
-                'this may result in false positives'
-            ),
-            action='store_true',
-            parse_from_config=True,
-        )
-        parser.add_option(
-            '--eradicate-whitelist',
-            default=False,
-            help=(
-                'String of "#" separated comment beginnings to whitelist '
-                'for eradicate. '
-                'Single parts are interpreted as regex. '
-                'OVERWRITING the default whitelist: {0}'
-            ).format(Eradicator.DEFAULT_WHITELIST),
-            action='store',
-            parse_from_config=True,
-        )
-        parser.add_option(
-            '--eradicate-whitelist-extend',
-            default=False,
-            help=(
-                'String of "#" separated comment beginnings to whitelist '
-                'for eradicate. '
-                'Single parts are interpreted as regex. '
-                'Overwrites --eradicate-whitelist. '
-                'EXTENDING the default whitelist: {0} '
-            ).format(Eradicator.DEFAULT_WHITELIST),
-            action='store',
-            parse_from_config=True,
-        )
+        pass
 
     @classmethod
     def parse_options(cls, options) -> None:
         """Parses registered options for providing them to each visitor."""
-        cls.options = options
+        pass
 
     def run(self) -> Iterator[Tuple[int, int, str, Type['Checker']]]:
         """Runs on each step of flake8."""
-        for line_no in self._lines_with_commented_out_code():
-            yield line_no, 0, self._error_template, type(self)
+        pass
 
     def _lines_with_commented_out_code(self) -> Iterable[int]:
         """
@@ -140,18 +114,4 @@ class Checker(object):
         checked for a comment. The eradicate function is only invokes,
         when the tokens indicate a comment in the physical line.
         """
-        comment_in_file = any(
-            token.type == tokenize.COMMENT
-            for token in self._file_tokens
-        )
-
-        if comment_in_file:
-            for line_no, line in enumerate(self._lines):
-                filtered_source = ''.join(
-                    self._eradicator.filter_commented_out_code(
-                        line,
-                        aggressive=self._options['aggressive'],
-                    ),
-                )
-                if line != filtered_source:
-                    yield line_no + 1
+        pass
